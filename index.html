@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,40 +16,48 @@
             margin: 0;
             color: #333;
         }
+
         .container {
             background: white;
             padding: 2rem;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
         }
+
         h1 {
             text-align: center;
             margin-bottom: 1.5rem;
             color: #0070f3;
         }
+
         .form-group {
             margin-bottom: 1rem;
         }
+
         label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 500;
         }
+
         input {
             width: 100%;
             padding: 0.75rem;
             border: 1px solid #ddd;
             border-radius: 6px;
-            box-sizing: border-box; /* Важно для padding */
+            box-sizing: border-box;
+            /* Важно для padding */
             font-size: 1rem;
             transition: border-color 0.2s;
         }
+
         input:focus {
             outline: none;
             border-color: #0070f3;
         }
+
         button {
             width: 100%;
             padding: 0.75rem;
@@ -62,13 +71,16 @@
             transition: background-color 0.2s;
             margin-top: 1rem;
         }
+
         button:hover {
             background-color: #0051a2;
         }
+
         button:disabled {
             background-color: #ccc;
             cursor: not-allowed;
         }
+
         #result {
             margin-top: 1.5rem;
             padding: 1rem;
@@ -77,13 +89,16 @@
             border: 1px solid #e1e4e8;
             font-family: monospace;
             word-break: break-all;
-            display: none; /* Скрыто по умолчанию */
+            display: none;
+            /* Скрыто по умолчанию */
         }
+
         .success {
             color: #0070f3;
             border-color: #0070f3;
             background-color: #f0f7ff;
         }
+
         .error {
             color: #d32f2f;
             border-color: #d32f2f;
@@ -91,142 +106,167 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <h1>Wake-on-LAN</h1>
-    <form id="wolForm">
-        <div class="form-group">
-            <label for="host">Host (IP or Desktop)</label>
-            <input type="text" id="host" placeholder="192.168.1.10" required>
-        </div>
-        <div class="form-group">
-            <label for="port">Port (UDP)</label>
-            <input type="number" id="port" value="9" required>
-        </div>
-        <div class="form-group">
-            <label for="mac">MAC Address</label>
-            <input type="text" id="mac" placeholder="AA:BB:CC:DD:EE:FF" required>
-        </div>
-        <div class="form-group">
-            <label for="key">Secret Key</label>
-            <input type="password" id="key" placeholder="Your secret key" required>
-        </div>
-        <div style="display: flex; gap: 10px;">
-            <button type="submit" id="sendBtn">Send Magic Packet</button>
-            <button type="button" id="statusBtn" style="background-color: #28a745;">Check Status</button>
-        </div>
-    </form>
+    <div class="container">
+        <h1>Wake-on-LAN</h1>
+        <form id="wolForm">
+            <div class="form-group">
+                <label for="host">Host (IP or Desktop)</label>
+                <input type="text" id="host" placeholder="192.168.1.10" required>
+            </div>
+            <div class="form-group">
+                <label for="port">Port (UDP)</label>
+                <input type="number" id="port" value="9" required>
+            </div>
+            <div class="form-group">
+                <label for="mac">MAC Address</label>
+                <input type="text" id="mac" placeholder="AA:BB:CC:DD:EE:FF" required>
+            </div>
+            <div class="form-group">
+                <label for="key">Secret Key</label>
+                <input type="password" id="key" placeholder="Your secret key" required>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" id="sendBtn">Send Magic Packet</button>
+                <button type="button" id="statusBtn" style="background-color: #28a745;">Check Status</button>
+                <button type="button" id="linkBtn" style="background-color: #17a2b8;">Get Link</button>
+            </div>
+        </form>
 
-    <div id="result"></div>
-</div>
+        <div id="result"></div>
+    </div>
 
-<script>
-    const form = document.getElementById('wolForm');
-    const resultDiv = document.getElementById('result');
-    const sendBtn = document.getElementById('sendBtn');
-    const statusBtn = document.getElementById('statusBtn');
+    <script>
+        const form = document.getElementById('wolForm');
+        const resultDiv = document.getElementById('result');
+        const sendBtn = document.getElementById('sendBtn');
+        const statusBtn = document.getElementById('statusBtn');
+        const linkBtn = document.getElementById('linkBtn');
 
-    // Функция для получения значений полей
-    const getValues = () => {
-        return {
-            host: document.getElementById('host').value,
-            port: document.getElementById('port').value,
-            mac: document.getElementById('mac').value,
-            key: document.getElementById('key').value
+        // Функция для получения значений полей
+        const getValues = () => {
+            return {
+                host: document.getElementById('host').value,
+                port: document.getElementById('port').value,
+                mac: document.getElementById('mac').value,
+                key: document.getElementById('key').value
+            };
         };
-    };
 
-    const showResult = (message, type = 'success', details = '') => {
-        resultDiv.style.display = 'block';
-        resultDiv.className = ''; // Сброс классов
-        resultDiv.classList.add(type);
-        resultDiv.innerHTML = `<strong>${type === 'success' ? 'Success!' : 'Error/Info'}</strong><br>${message}${details}`;
-    };
+        const showResult = (message, type = 'success', details = '') => {
+            resultDiv.style.display = 'block';
+            resultDiv.className = ''; // Сброс классов
+            resultDiv.classList.add(type);
+            resultDiv.innerHTML = `<strong>${type === 'success' ? 'Success!' : 'Error/Info'}</strong><br>${message}${details}`;
+        };
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        // Сброс UI
-        resultDiv.style.display = 'none';
-        sendBtn.disabled = true;
-        sendBtn.textContent = 'Sending...';
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-        const { host, port, mac, key } = getValues();
-        const apiUrl = `/api/wake?ip=${encodeURIComponent(host)}&port=${port}&mac=${encodeURIComponent(mac)}&key=${encodeURIComponent(key)}`;
-        const fullUrl = `${window.location.origin}${apiUrl}`;
+            // Сброс UI
+            resultDiv.style.display = 'none';
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Sending...';
 
-        try {
-            const response = await fetch(apiUrl);
-            const data = await response.json();
+            const { host, port, mac, key } = getValues();
+            const apiUrl = `/api/wake?ip=${encodeURIComponent(host)}&port=${port}&mac=${encodeURIComponent(mac)}&key=${encodeURIComponent(key)}`;
+            const fullUrl = `${window.location.origin}${apiUrl}`;
 
-            if (response.ok) {
-                showResult('Packet sent.', 'success', `<br><br>Server Response:<br>${JSON.stringify(data, null, 2)}`);
-            } else {
-                showResult(data.error || 'Unknown error', 'error', `<br><br>Request URL:<br><small>${fullUrl}</small>`);
-            }
-        } catch (error) {
-            showResult(`Network Error: ${error.message}`, 'error');
-        } finally {
-            sendBtn.disabled = false;
-            sendBtn.textContent = 'Send Magic Packet';
-        }
-    });
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
 
-    statusBtn.addEventListener('click', async () => {
-        resultDiv.style.display = 'none';
-        statusBtn.disabled = true;
-        statusBtn.textContent = 'Checking...';
-
-        const { host, key } = getValues();
-
-        if (!host || !key) {
-             showResult('Please enter Host (IP) and Secret Key', 'error');
-             statusBtn.disabled = false;
-             statusBtn.textContent = 'Check Status';
-             return;
-        }
-
-        const apiUrl = `/api/status?ip=${encodeURIComponent(host)}&key=${encodeURIComponent(key)}`;
-        
-        try {
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-
-            if (response.ok) {
-                if (data.status === 'online') {
-                    showResult(`Device <strong>${host}</strong> is <span style="color: green; font-weight: bold;">ONLINE</span> (Port 135 open).`, 'success');
+                if (response.ok) {
+                    showResult('Packet sent.', 'success', `<br><br>Server Response:<br>${JSON.stringify(data, null, 2)}`);
                 } else {
-                    showResult(`Device <strong>${host}</strong> is <span style="color: red; font-weight: bold;">OFFLINE</span> (Port 135 unreachable).`, 'error', `<br>Reason: ${data.reason}`);
+                    showResult(data.error || 'Unknown error', 'error', `<br><br>Request URL:<br><small>${fullUrl}</small>`);
                 }
-            } else {
-                showResult(data.error || 'Unknown error', 'error');
+            } catch (error) {
+                showResult(`Network Error: ${error.message}`, 'error');
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Send Magic Packet';
             }
-        } catch (error) {
-            showResult(`Network Error: ${error.message}`, 'error');
-        } finally {
-            statusBtn.disabled = false;
-            statusBtn.textContent = 'Check Status';
-        }
-    });
+        });
 
-    // Авто-форматирование MAC адреса
-    document.getElementById('mac').addEventListener('input', function (e) {
-        let value = e.target.value.replace(/[^0-9a-fA-F]/g, '').toUpperCase();
-        if (value.length > 12) value = value.substring(0, 12);
-        
-        const parts = [];
-        for (let i = 0; i < value.length; i += 2) {
-            parts.push(value.substring(i, i + 2));
-        }
-        
-        // Только если пользователь не стирает двоеточия, можно добавлять их
-        // Но для простоты оставим просто форматирование при вводе
-        if (parts.length > 1) {
-            e.target.value = parts.join(':');
-        }
-    });
-</script>
+        statusBtn.addEventListener('click', async () => {
+            resultDiv.style.display = 'none';
+            statusBtn.disabled = true;
+            statusBtn.textContent = 'Checking...';
+
+            const { host, key } = getValues();
+
+            if (!host || !key) {
+                showResult('Please enter Host (IP) and Secret Key', 'error');
+                statusBtn.disabled = false;
+                statusBtn.textContent = 'Check Status';
+                return;
+            }
+
+            const apiUrl = `/api/status?ip=${encodeURIComponent(host)}&key=${encodeURIComponent(key)}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (data.status === 'online') {
+                        showResult(`Device <strong>${host}</strong> is <span style="color: green; font-weight: bold;">ONLINE</span> (Port 135 open).`, 'success');
+                    } else {
+                        showResult(`Device <strong>${host}</strong> is <span style="color: red; font-weight: bold;">OFFLINE</span> (Port 135 unreachable).`, 'error', `<br>Reason: ${data.reason}`);
+                    }
+                } else {
+                    showResult(data.error || 'Unknown error', 'error');
+                }
+            } catch (error) {
+                showResult(`Network Error: ${error.message}`, 'error');
+            } finally {
+                statusBtn.disabled = false;
+                statusBtn.textContent = 'Check Status';
+            }
+        });
+
+        linkBtn.addEventListener('click', () => {
+            const { host, port, mac, key } = getValues();
+
+            if (!host || !mac || !key) {
+                showResult('Please fill in all required fields (Host, MAC, Key)', 'error');
+                return;
+            }
+
+            const apiUrl = `/api/wake?ip=${encodeURIComponent(host)}&port=${port}&mac=${encodeURIComponent(mac)}&key=${encodeURIComponent(key)}`;
+            const fullUrl = `${window.location.origin}${apiUrl}`;
+
+            showResult('Direct Link generated:', 'success', `
+            <br>
+            <div style="margin-top: 10px; display: flex; gap: 5px;">
+                <input type="text" value="${fullUrl}" id="linkInput" readonly style="width: 100%; padding: 5px;">
+                <button onclick="navigator.clipboard.writeText(document.getElementById('linkInput').value)" style="margin: 0; padding: 5px 10px; width: auto;">Copy</button>
+            </div>
+            <br><small>Open this link to wake the device without the UI.</small>
+        `);
+        });
+
+        // Авто-форматирование MAC адреса
+        document.getElementById('mac').addEventListener('input', function (e) {
+            let value = e.target.value.replace(/[^0-9a-fA-F]/g, '').toUpperCase();
+            if (value.length > 12) value = value.substring(0, 12);
+
+            const parts = [];
+            for (let i = 0; i < value.length; i += 2) {
+                parts.push(value.substring(i, i + 2));
+            }
+
+            // Только если пользователь не стирает двоеточия, можно добавлять их
+            // Но для простоты оставим просто форматирование при вводе
+            if (parts.length > 1) {
+                e.target.value = parts.join(':');
+            }
+        });
+    </script>
 
 </body>
+
 </html>
