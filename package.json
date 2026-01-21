@@ -1,0 +1,10 @@
+{
+  "name": "vercel-wol",
+  "version": "1.0.0",
+  "description": "Simple Wake-on-LAN application for Vercel",
+  "main": "index.html",
+  "type": "module",
+  "engines": {
+    "node": ">=18.x"
+  }
+}
