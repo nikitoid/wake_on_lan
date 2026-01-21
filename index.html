@@ -145,6 +145,31 @@
         const statusBtn = document.getElementById('statusBtn');
         const linkBtn = document.getElementById('linkBtn');
 
+        // Функция для копирования с визуальным эффектом
+        window.copyLink = async (btn) => {
+            const input = document.getElementById('linkInput');
+            if (!input) return;
+
+            try {
+                await navigator.clipboard.writeText(input.value);
+
+                const originalText = btn.innerText; // Используем innerText, чтобы сохранить отступы если есть, но здесь простой текст
+                const originalBg = btn.style.backgroundColor;
+
+                btn.innerText = 'Copied!';
+                btn.style.backgroundColor = '#28a745'; // Зеленый цвет успеха
+
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = originalBg;
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+                btn.innerText = 'Error';
+                setTimeout(() => btn.innerText = 'Copy', 2000);
+            }
+        };
+
         // Функция для получения значений полей
         const getValues = () => {
             return {
@@ -244,8 +269,8 @@
             <div style="margin-top: 10px; position: relative; width: 100%;">
                 <input type="text" value="${fullUrl}" id="linkInput" readonly 
                     style="width: 100%; padding: 8px 60px 8px 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: monospace;">
-                <button onclick="navigator.clipboard.writeText(document.getElementById('linkInput').value)" 
-                    style="position: absolute; right: 2px; top: 2px; bottom: 2px; margin: 0; padding: 0 10px; width: auto; font-size: 0.8rem; background-color: #0070f3; border-radius: 4px; height: auto;">
+                <button onclick="copyLink(this)" 
+                    style="position: absolute; right: 2px; top: 2px; bottom: 2px; margin: 0; padding: 0 10px; width: auto; font-size: 0.8rem; background-color: #0070f3; border-radius: 4px; height: auto; transition: background-color 0.2s;">
                     Copy
                 </button>
             </div>
