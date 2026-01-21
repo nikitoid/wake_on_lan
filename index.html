@@ -241,9 +241,13 @@
 
             showResult('Direct Link generated:', 'success', `
             <br>
-            <div style="margin-top: 10px; display: flex; gap: 5px;">
-                <input type="text" value="${fullUrl}" id="linkInput" readonly style="width: 100%; padding: 5px;">
-                <button onclick="navigator.clipboard.writeText(document.getElementById('linkInput').value)" style="margin: 0; padding: 5px 10px; width: auto;">Copy</button>
+            <div style="margin-top: 10px; position: relative; width: 100%;">
+                <input type="text" value="${fullUrl}" id="linkInput" readonly 
+                    style="width: 100%; padding: 8px 60px 8px 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: monospace;">
+                <button onclick="navigator.clipboard.writeText(document.getElementById('linkInput').value)" 
+                    style="position: absolute; right: 2px; top: 2px; bottom: 2px; margin: 0; padding: 0 10px; width: auto; font-size: 0.8rem; background-color: #0070f3; border-radius: 4px; height: auto;">
+                    Copy
+                </button>
             </div>
             <br><small>Open this link to wake the device without the UI.</small>
         `);
