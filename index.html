@@ -112,7 +112,10 @@
             <label for="key">Secret Key</label>
             <input type="password" id="key" placeholder="Your secret key" required>
         </div>
-        <button type="submit" id="sendBtn">Send Magic Packet</button>
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" id="sendBtn">Send Magic Packet</button>
+            <button type="button" id="statusBtn" style="background-color: #28a745;">Check Status</button>
+        </div>
     </form>
 
     <div id="result"></div>
@@ -122,46 +125,88 @@
     const form = document.getElementById('wolForm');
     const resultDiv = document.getElementById('result');
     const sendBtn = document.getElementById('sendBtn');
+    const statusBtn = document.getElementById('statusBtn');
+
+    // Функция для получения значений полей
+    const getValues = () => {
+        return {
+            host: document.getElementById('host').value,
+            port: document.getElementById('port').value,
+            mac: document.getElementById('mac').value,
+            key: document.getElementById('key').value
+        };
+    };
+
+    const showResult = (message, type = 'success', details = '') => {
+        resultDiv.style.display = 'block';
+        resultDiv.className = ''; // Сброс классов
+        resultDiv.classList.add(type);
+        resultDiv.innerHTML = `<strong>${type === 'success' ? 'Success!' : 'Error/Info'}</strong><br>${message}${details}`;
+    };
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         // Сброс UI
-        resultDiv.className = '';
         resultDiv.style.display = 'none';
         sendBtn.disabled = true;
         sendBtn.textContent = 'Sending...';
 
-        const host = document.getElementById('host').value;
-        const port = document.getElementById('port').value;
-        const mac = document.getElementById('mac').value;
-        const key = document.getElementById('key').value;
-
-        // Генерация URL для отображения (просто для наглядности)
-        const currentUrl = window.location.origin;
+        const { host, port, mac, key } = getValues();
         const apiUrl = `/api/wake?ip=${encodeURIComponent(host)}&port=${port}&mac=${encodeURIComponent(mac)}&key=${encodeURIComponent(key)}`;
-        const fullUrl = `${currentUrl}${apiUrl}`;
+        const fullUrl = `${window.location.origin}${apiUrl}`;
 
         try {
             const response = await fetch(apiUrl);
             const data = await response.json();
 
-            resultDiv.style.display = 'block';
-            
             if (response.ok) {
-                resultDiv.classList.add('success');
-                resultDiv.innerHTML = `<strong>Success!</strong><br>Packet sent.<br><br>Request URL:<br><small>${fullUrl}</small><br><br>Server Response:<br>${JSON.stringify(data, null, 2)}`;
+                showResult('Packet sent.', 'success', `<br><br>Server Response:<br>${JSON.stringify(data, null, 2)}`);
             } else {
-                resultDiv.classList.add('error');
-                resultDiv.innerHTML = `<strong>Error ${response.status}</strong><br>${data.error || 'Unknown error'}<br><br>Request URL:<br><small>${fullUrl}</small>`;
+                showResult(data.error || 'Unknown error', 'error', `<br><br>Request URL:<br><small>${fullUrl}</small>`);
             }
         } catch (error) {
-            resultDiv.style.display = 'block';
-            resultDiv.classList.add('error');
-            resultDiv.innerHTML = `<strong>Network Error:</strong><br>${error.message}`;
+            showResult(`Network Error: ${error.message}`, 'error');
         } finally {
             sendBtn.disabled = false;
             sendBtn.textContent = 'Send Magic Packet';
+        }
+    });
+
+    statusBtn.addEventListener('click', async () => {
+        resultDiv.style.display = 'none';
+        statusBtn.disabled = true;
+        statusBtn.textContent = 'Checking...';
+
+        const { host, key } = getValues();
+
+        if (!host || !key) {
+             showResult('Please enter Host (IP) and Secret Key', 'error');
+             statusBtn.disabled = false;
+             statusBtn.textContent = 'Check Status';
+             return;
+        }
+
+        const apiUrl = `/api/status?ip=${encodeURIComponent(host)}&key=${encodeURIComponent(key)}`;
+        
+        try {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+
+            if (response.ok) {
+                if (data.status === 'online') {
+                    showResult(`Device <strong>${host}</strong> is <span style="color: green; font-weight: bold;">ONLINE</span> (Port 135 open).`, 'success');
+                } else {
+                    showResult(`Device <strong>${host}</strong> is <span style="color: red; font-weight: bold;">OFFLINE</span> (Port 135 unreachable).`, 'error', `<br>Reason: ${data.reason}`);
+                }
+            } else {
+                showResult(data.error || 'Unknown error', 'error');
+            }
+        } catch (error) {
+            showResult(`Network Error: ${error.message}`, 'error');
+        } finally {
+            statusBtn.disabled = false;
+            statusBtn.textContent = 'Check Status';
         }
     });
 
