@@ -128,10 +128,14 @@
                 <label for="key">Secret Key</label>
                 <input type="password" id="key" placeholder="Your secret key" required>
             </div>
-            <div style="display: flex; gap: 10px;">
-                <button type="submit" id="sendBtn">Send Magic Packet</button>
-                <button type="button" id="statusBtn" style="background-color: #28a745;">Check Status</button>
-                <button type="button" id="linkBtn" style="background-color: #17a2b8;">Get Link</button>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button type="submit" id="sendBtn" style="flex: 1 1 100%;">Send Magic Packet</button>
+                <button type="button" id="statusBtn" style="background-color: #28a745; flex: 1 1 45%;">Check
+                    Status</button>
+                <button type="button" id="linkBtn" style="background-color: #17a2b8; flex: 1 1 45%;">Get Wake
+                    Link</button>
+                <button type="button" id="statusLinkBtn" style="background-color: #6f42c1; flex: 1 1 100%;">Get Status
+                    Link</button>
             </div>
         </form>
 
@@ -144,6 +148,7 @@
         const sendBtn = document.getElementById('sendBtn');
         const statusBtn = document.getElementById('statusBtn');
         const linkBtn = document.getElementById('linkBtn');
+        const statusLinkBtn = document.getElementById('statusLinkBtn');
 
         // Функция для копирования с визуальным эффектом
         window.copyLink = async (btn) => {
@@ -276,6 +281,31 @@
             </div>
             <br><small>Open this link to wake the device without the UI.</small>
         `);
+        });
+
+        statusLinkBtn.addEventListener('click', () => {
+            const { host, key } = getValues();
+
+            if (!host || !key) {
+                showResult('Please enter Host (IP) and Secret Key', 'error');
+                return;
+            }
+
+            const apiUrl = `/api/status?ip=${encodeURIComponent(host)}&key=${encodeURIComponent(key)}`;
+            const fullUrl = `${window.location.origin}${apiUrl}`;
+
+            showResult('Status Link generated:', 'success', `
+                <br>
+                <div style="margin-top: 10px; position: relative; width: 100%;">
+                    <input type="text" value="${fullUrl}" id="linkInput" readonly 
+                        style="width: 100%; padding: 8px 60px 8px 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: monospace;">
+                    <button onclick="copyLink(this)" 
+                        style="position: absolute; right: 2px; top: 2px; bottom: 2px; margin: 0; padding: 0 10px; width: auto; font-size: 0.8rem; background-color: #0070f3; border-radius: 4px; height: auto; transition: background-color 0.2s;">
+                        Copy
+                    </button>
+                </div>
+                <br><small>Use this link to check device status (JSON Response).</small>
+            `);
         });
 
         // Авто-форматирование MAC адреса
