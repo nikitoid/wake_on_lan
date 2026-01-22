@@ -242,10 +242,10 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    if (data.status === 'online') {
+                    if (data.value === true) {
                         showResult(`Device <strong>${host}</strong> is <span style="color: green; font-weight: bold;">ONLINE</span> (Port 135 open).`, 'success');
                     } else {
-                        showResult(`Device <strong>${host}</strong> is <span style="color: red; font-weight: bold;">OFFLINE</span> (Port 135 unreachable).`, 'error', `<br>Reason: ${data.reason}`);
+                        showResult(`Device <strong>${host}</strong> is <span style="color: red; font-weight: bold;">OFFLINE</span> (Port 135 unreachable).`, 'error');
                     }
                 } else {
                     showResult(data.error || 'Unknown error', 'error');

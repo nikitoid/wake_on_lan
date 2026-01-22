@@ -26,21 +26,20 @@ export default async function handler(req, res) {
 
     socket.on('connect', () => {
       socket.destroy();
-      // Yandex Smart Home expects value: true/false
-      res.status(200).json({ status: 'online', value: true, ip });
+      // Yandex Smart Home expects ONLY value: true/false
+      res.status(200).json({ value: true });
       resolve();
     });
 
     socket.on('timeout', () => {
       socket.destroy();
-      res.status(200).json({ status: 'offline', value: false, ip, reason: 'timeout' });
+      res.status(200).json({ value: false });
       resolve();
     });
 
     socket.on('error', (err) => {
       socket.destroy();
-      // Ошибки соединения (ECONNREFUSED и т.д.) тоже считаем как offline
-      res.status(200).json({ status: 'offline', value: false, ip, reason: err.code });
+      res.status(200).json({ value: false });
       resolve();
     });
 
